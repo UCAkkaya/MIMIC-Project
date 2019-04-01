@@ -1,35 +1,51 @@
 //Code for client of MIMIC.
 
-~window = Window("Electrode").front
+//boiler values of electrode1:
+
+~valdict = (
+	blink: 1.0.rand,
+	delta: 1.0.rand,
+	theta: 1.0.rand,
+	alpha: 1.0.rand,
+	betaLo: 1.0.rand,
+	beta: 1.0.rand,
+	betaHi: 1.0.rand,
+	gamma: 1.0.rand
+);
+
+
+//dummy way of updating values on sliders
+(
+~windowfunc = {
+	~sliders[0].value = ~valdict.blink;
+	~sliders[1].value = ~valdict.delta;
+	~sliders[2].value = ~valdict.theta;
+	~sliders[3].value = ~valdict.alpha;
+	~sliders[4].value = ~valdict.betaLo;
+	~sliders[5].value = ~valdict.beta;
+	~sliders[6].value = ~valdict.betaHi;
+	~sliders[0].value = ~valdict.gamma;
+};
+)
+
+
+~window = Window("electrode").front
 .view.layout = HLayout (
 * (~sliders = {Slider()} !8) );
 
-~windowfunc = {
-	~sliders.do{|sl| sl.value = ~valdict.values};
-};
-
-//OR
-
-~windowfunc = {
-	~sliders.do{|sl|
-		~valdict.keysValuesDo{|keys, vals| ~sliders[keys] = sl[vals] }
-	}
-};
-
+~sliders[0].value = 0.1
 (
 ~valdict = ();
 
 OSCdef(\brainIn1, {|msg|
 	(1, 3 .. msg.size).do { |i|
-		~valdict.put(msg[i], msg[i+1]);
+		~valdict.put(msg[i], msg[i+1])
  	};
 	//~valdict.postln
-	{ ~windowfunc.value }.defer;
+	~valdict;
+	~windowfunc.value;
 }, '/el0');
 )
-
-//check is working:
-~valdict.betaHi;
 
 (
 SynthDef(\sine, {arg freq = 120;
