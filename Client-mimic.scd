@@ -1,7 +1,8 @@
 //Code for client of MIMIC.
 
-//boiler values of electrode1:
-
+//boiler values of electrode1 ONLY for test!
+/*
+(
 ~valdict = (
 	blink: 1.0.rand,
 	delta: 1.0.rand,
@@ -12,6 +13,10 @@
 	betaHi: 1.0.rand,
 	gamma: 1.0.rand
 );
+
+NetAddr.localAddr.sendMsg('/el0', *~valdict);
+)
+*/
 
 
 //dummy way of updating values on sliders
@@ -33,25 +38,28 @@
 .view.layout = HLayout (
 * (~sliders = {Slider()} !8) );
 
-~sliders[0].value = 0.1
+
 (
 ~valdict = ();
 
 OSCdef(\brainIn1, {|msg|
+	if(~valdict.notNil){
+		if(~windowfunc.notNil){
 	(1, 3 .. msg.size).do { |i|
 		~valdict.put(msg[i], msg[i+1])
  	};
 	//~valdict.postln
-	~valdict;
-	~windowfunc.value;
+			{~windowfunc.value}.defer;
+		}
+	};
 }, '/el0');
 )
 
 (
 SynthDef(\sine, {arg freq = 120;
-	var sig = Mix.ar( { SinOsc.ar(freq) }!8) * EnvGen.ar(Env.sine(0.25), doneAction:2);
+	var sig = Mix.ar( { SinOsc.ar(freq.lag(0.3)) }!8) * EnvGen.ar(Env.sine(0.25), doneAction:2);
 	sig = LeakDC.ar(sig);
-	Out.ar(0, sig);
+	ReplaceOut.ar(0, sig);
 }).add;
 );
 
@@ -60,4 +68,8 @@ SynthDef(\sine, {arg freq = 120;
 Spec.add(\betaHi, [120, 140.0])
 
 //Use linlin to scale up the value to the appropriate range:
-Pdef(\x, Pbind(\instrument, \sine, \dur, 0.25, \freq, Pfunc{ ~valdict.betaLo.linlin(0, 1, 120.0, 1660.0) }) ).play;
+(
+Pdef(\x, Pbind(\instrument, \sine,
+	\dur, Pfunc{ ~valdict.alpha / 2},
+	\freq, Pfunc{ ~valdict.betaLo.linlin(0, 1, 120.0, 1660.0) }) ).play;
+)
