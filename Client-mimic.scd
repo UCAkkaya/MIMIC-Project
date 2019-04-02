@@ -38,7 +38,7 @@ CmdPeriod.add({ "You have deactivated OSCdef, rerun now".warn;});
 )
 
 
-//dummy way of updating values on sliders, ONLY for test not on LIVE.
+//dummy way of updating values on sliders.
 (
 ~windowfunc = {
 	~sliders[0].value = ~valdict.blink;
