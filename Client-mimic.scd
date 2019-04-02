@@ -1,6 +1,6 @@
 //Code for client of MIMIC.
 
-//boiler values of electrode1 ONLY for test!
+//boiler values of electrode1 ONLY for practise!
 /*
 (
 ~valdict = (
@@ -33,10 +33,12 @@ NetAddr.localAddr.sendMsg('/el0', *~valdict);
 ~addrBook.addMe;// will automatically add you using your user name
 //~addrBook.addMe(\YourNAMEhere);  // or specify your name
 ~hail = Hail(~addrBook);
+s.reboot;
+CmdPeriod.add({ "You have deactivated OSCdef, rerun now".warn;});
 )
 
 
-//dummy way of updating values on sliders
+//dummy way of updating values on sliders, ONLY for test not on LIVE.
 (
 ~windowfunc = {
 	~sliders[0].value = ~valdict.blink;
@@ -66,17 +68,17 @@ OSCdef(\brainIn1, {|msg|
 		~valdict.put(msg[i], msg[i+1])
  	};
 	//~valdict.postln
-			{~windowfunc.value}.defer;
+	{~windowfunc.value}.defer;
 		}
 	};
-}, '/el0');
+}, '/el3'); //make sure you assign the correct electrode.
 )
 
 (
-SynthDef(\sine, {arg freq = 120;
-	var sig = Mix.ar( { SinOsc.ar(freq.lag(0.3)) }!8) * EnvGen.ar(Env.sine(0.25), doneAction:2);
+SynthDef(\sine, {arg freq = 120, mod = 0.1, release = 0.25, amp = 0.1;
+	var sig = Mix.ar( { SinOsc.ar(freq.lag(0.3), 0, SinOsc.ar(mod).range(0.1, 0.8)) }!8) * EnvGen.ar(Env.sine(release), doneAction:2);
 	sig = LeakDC.ar(sig);
-	ReplaceOut.ar(0, sig);
+	ReplaceOut.ar(0, sig * amp);
 }).add;
 );
 
@@ -87,6 +89,12 @@ Spec.add(\betaHi, [120, 140.0])
 //Use linlin to scale up the value to the appropriate range:
 (
 Pdef(\x, Pbind(\instrument, \sine,
-	\dur, Pfunc{ ~valdict.alpha / 2},
-	\freq, Pfunc{ ~valdict.betaLo.linlin(0, 1, 120.0, 1660.0) }) ).play;
+	\dur, Pfunc{ ~valdict.betaHi + rrand(0.25, 0.6)},
+	\freq, Pfunc{ ~valdict.alpha.linlin(0, 1, 120.0, 1220.0) + rrand(10, 100) },
+	\mod, Pfunc{ ~valdict.beta + rrand(0.1, 10.0) },
+	\release, Pfunc{ ~valdict.alpha},
+	\legato, 0.1,
+	\amp, Pfunc{ ~valdict.gamma.max(0.9) + 0.1}
+)
+).play;
 )
