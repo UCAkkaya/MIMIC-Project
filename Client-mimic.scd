@@ -18,6 +18,23 @@ NetAddr.localAddr.sendMsg('/el0', *~valdict);
 )
 */
 
+//Utopia
+(
+~win = Window("AdHocSociety").front;
+~win.layout = VLayout.new.add(~listView = ListView.new);
+
+~addrBook = AddrBook.new;
+// to get updates, just add a dependant
+~addrBook.addDependant({|addrBook, what, who|
+	{~listView.items = addrBook.peers.collectAs({|peer|
+		peer.name ++ " | " ++ peer.addr.ip ++ " | " ++ if(peer.online, "online", "offline");
+	}, Array)}.defer;
+});
+~addrBook.addMe;// will automatically add you using your user name
+//~addrBook.addMe(\YourNAMEhere);  // or specify your name
+~hail = Hail(~addrBook);
+)
+
 
 //dummy way of updating values on sliders
 (
