@@ -116,7 +116,8 @@ SynthDef(\UCAsaw, {
 
 
 
-//Use linlin or linexp to scale up the value to the appropriate range: KEY HERE IS DATA IS SENT EXPONENTIALLY SO YOU DON'T GET THE HIGH 1 VALUE THAT OFTEN.
+//Use linlin or linexp to scale up the value to the appropriate range: 
+//KEY HERE IS DATA IS SENT EXPONENTIALLY SO YOU DON'T GET THE HIGH 1 VALUE THAT OFTEN.
 
 (
 Pdef(\x, Pbind(\instrument, \sine,
@@ -131,7 +132,8 @@ Pdef(\x, Pbind(\instrument, \sine,
 )
 
 
-//try lowering the range of linlin and linexp. More importantly for dronning sounds (where brain wave is calmer).
+//try lowering the range of linlin and linexp. 
+//More importantly for dronning sounds (where brain wave is calmer).
 
 (
 Pdef(\drone, Pbind(\instrument, \UCAsaw,
@@ -148,7 +150,8 @@ Pdef(\drone, Pbind(\instrument, \UCAsaw,
 //experimental: add specs for each value like this:
 Spec.add(\betaHi, [120, 140.0])
 
-// You can use comparison of these values. For example BetaHi(or mean of three beta values)/Alpha shows the focus of the subject.
+// You can use comparison of these values. 
+// For example BetaHi(or mean of three beta values)/Alpha shows the focus of the subject.
 
 (
 Pdef(\drone2, Pbind(\instrument, \UCAsaw,
