@@ -21,8 +21,28 @@
 ~addrBook.addMe;// will automatically add you using your user name
 //~addrBook.addMe(\YourNAMEhere);  // or specify your name
 ~hail = Hail(~addrBook);
-)
 
+// Chat
+~chatter = Chatter(~addrBook);
+
+~win.layout.add(VLayout(StaticText().string_("Chatter"), ~textField = TextField(), ~textView = TextView()));
+~textField.action_({|v| ~chatter.send(v.string); v.string = "" });
+// to get updates, just add a dependant
+~chatter.addDependant({|chatter, what, who, chat|
+	chat = chat.asString;
+	{ ~textView.string_(who ++ ": " ++ chat ++ "\n" ++ ~textView.string) }.defer;
+	// Shout
+	if (chat.beginsWith(NMLShout.tag)) {
+		defer {
+			NMLShout((chat.drop(NMLShout.tag.size).reject(_ == $\n) + ("/" ++ who)));
+			{~win.front;}.defer(0.1);
+		}
+	};
+});
+
+s.reboot;
+CmdPeriod.add({ "You have deactivated OSCdef, rerun now".warn;});
+)
 
 //OSC Communication
 (
@@ -41,6 +61,7 @@ OSCdef(\eegPower, {
 
 
 
+
 // TEST with Synthdef
 (
 SynthDef(\UCAsaw, {
@@ -55,7 +76,7 @@ SynthDef(\UCAsaw, {
 	sig = sig * env * amp;
 	Out.ar(out, sig);
 }).add;
-
+)
 Pdef( \saw,
 	Pbind(
 		\instrument, \UCAsaw,
@@ -72,3 +93,4 @@ Pdef( \saw,
 )
 
 Pdef(\saw).play;
+
