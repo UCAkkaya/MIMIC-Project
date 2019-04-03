@@ -51,17 +51,22 @@ NetAddr.localAddr.sendMsg('/el0', *~valdict);
 		}
 	};
 });
-
 s.reboot;
-CmdPeriod.add({ "You have deactivated OSCdef, rerun now".warn;});
-
 )
+
 // cleanup
 ~chatter.free; ~win.close;
 
 //GUI occasionally check if you are getting values or not.
 (
-~window = Window("electrode").front.view.layout = HLayout (* (~sliders = {Slider()} !8) );
+
+w = Window("MIMIC", Rect(100,100, 285, 400)).front.alwaysOnTop_(true);
+w.view.decorator = FlowLayout( w.view.bounds, 5@5, 15@5 );
+(~sliders = {Slider(w)} !8);
+StaticText(w,275@20).string_("Blink    Delta   Theta   Alpha   BetaL   Beta   BetaH   Gam");
+PdefAllGui(16, w);
+
+
 
 ~windowfunc = {
 	~sliders[0].value = ~valdict.blink;
@@ -75,6 +80,7 @@ CmdPeriod.add({ "You have deactivated OSCdef, rerun now".warn;});
 };
 )
 
+
 (
 ~valdict = ();
 OSCdef(\brainIn1, {|msg|
@@ -87,7 +93,7 @@ OSCdef(\brainIn1, {|msg|
 	{~windowfunc.value}.defer;
 		}
 	};
-}, '/el3'); //make sure you assign the correct electrode.
+}, '/el3').permanent_(true); //make sure you assign the correct electrode.
 )
 
 // Boiler code on using the brainwave values.
@@ -116,7 +122,7 @@ SynthDef(\UCAsaw, {
 
 
 
-//Use linlin or linexp to scale up the value to the appropriate range: 
+//Use linlin or linexp to scale up the value to the appropriate range:
 //KEY HERE IS DATA IS SENT EXPONENTIALLY SO YOU DON'T GET THE HIGH 1 VALUE THAT OFTEN.
 
 (
@@ -132,7 +138,7 @@ Pdef(\x, Pbind(\instrument, \sine,
 )
 
 
-//try lowering the range of linlin and linexp. 
+//try lowering the range of linlin and linexp.
 //More importantly for dronning sounds (where brain wave is calmer).
 
 (
@@ -150,7 +156,7 @@ Pdef(\drone, Pbind(\instrument, \UCAsaw,
 //experimental: add specs for each value like this:
 Spec.add(\betaHi, [120, 140.0])
 
-// You can use comparison of these values. 
+// You can use comparison of these values.
 // For example BetaHi(or mean of three beta values)/Alpha shows the focus of the subject.
 
 (
@@ -166,6 +172,3 @@ Pdef(\drone2, Pbind(\instrument, \UCAsaw,
 )
 
 
-
-PdefAllGui(16, nil, Rect(0, 0, 300, 200)); // will put every window in one
-	

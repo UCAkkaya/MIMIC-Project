@@ -41,7 +41,6 @@
 });
 
 s.reboot;
-CmdPeriod.add({ "You have deactivated OSCdef, rerun now".warn;});
 )
 
 //OSC Communication
@@ -56,9 +55,8 @@ OSCdef(\eegPower, {
 	~addrBook.sendAll('/el1', * ~eegBook[\el1]);
 	~addrBook.sendAll('/el2', * ~eegBook[\el2]);
 	~addrBook.sendAll('/el3', * ~eegBook[\el3]);
-}, '/band');
+}, '/band').permanent_(true);
 )
-
 
 
 
