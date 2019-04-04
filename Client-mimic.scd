@@ -1,8 +1,8 @@
 //Code for client of MIMIC.
 
 //boiler values of electrode1 ONLY for practise!
-/*
-(
+
+/*(
 ~valdict = (
 	blink: 1.0.rand,
 	delta: 1.0.rand,
@@ -15,8 +15,8 @@
 );
 
 NetAddr.localAddr.sendMsg('/el0', *~valdict);
-)
-*/
+)*/
+
 
 //Utopia
 (
@@ -52,6 +52,7 @@ NetAddr.localAddr.sendMsg('/el0', *~valdict);
 	};
 });
 s.reboot;
+~objSpace = OSCObjectSpace(~addrBook, true);
 )
 
 // cleanup
@@ -81,20 +82,10 @@ PdefAllGui(16, w);
 )
 
 
-(
-~valdict = ();
-OSCdef(\brainIn1, {|msg|
-	if(~valdict.notNil){
-		if(~windowfunc.notNil){
-	(1, 3 .. msg.size).do { |i|
-		~valdict.put(msg[i], msg[i+1])
- 	};
-	//~valdict.postln
-	{~windowfunc.value}.defer;
-		}
-	};
-}, '/el3').permanent_(true); //make sure you assign the correct electrode.
-)
+//Recieving the values
+
+~objSpace[\event][\el0]; //Tdef ?
+
 
 // Boiler code on using the brainwave values.
 

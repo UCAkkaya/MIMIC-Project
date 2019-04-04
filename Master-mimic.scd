@@ -41,6 +41,8 @@
 });
 
 s.reboot;
+
+~objSpace = OSCObjectSpace(~addrBook, true);
 )
 
 //OSC Communication
@@ -51,10 +53,7 @@ OSCdef(\eegPower, {
 	arg msg;
 	msg = msg.round(0.00001);
 	~eegBook[ msg[1] ] = ([blink: msg[2], delta:msg[3], theta:msg[4], alpha:msg[5], betaLo:msg[6], beta:msg[7], betaHi:msg[8], gamma:msg[9]]);
-	~addrBook.sendAll('/el0', * ~eegBook[\el0]);
-	~addrBook.sendAll('/el1', * ~eegBook[\el1]);
-	~addrBook.sendAll('/el2', * ~eegBook[\el2]);
-	~addrBook.sendAll('/el3', * ~eegBook[\el3]);
+	~objSpace.put(\event, ~eegBook);
 }, '/band').permanent_(true);
 )
 
