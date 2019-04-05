@@ -58,7 +58,6 @@ s.reboot;
 // cleanup
 ~chatter.free; ~win.close;
 
-~objSpace = OSCObjectSpace(~addrBook, true);
 ~event[\el0].asEvent.alpha// use singular values like this.
 
 //For example, you can assign the electrode on a variable and access it this way.
