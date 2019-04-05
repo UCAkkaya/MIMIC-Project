@@ -18,7 +18,7 @@ NetAddr.localAddr.sendMsg('/el0', *~valdict);
 )
 */
 
-//Utopia
+// 1 - Utopia
 (
 ~win = Window("AdHocSociety").front;
 ~win.layout = VLayout.new.add(~listView = ListView.new);
@@ -54,19 +54,14 @@ NetAddr.localAddr.sendMsg('/el0', *~valdict);
 s.reboot;
 )
 
-// cleanup
-~chatter.free; ~win.close;
-
-//GUI occasionally check if you are getting values or not.
+// 2 - GUI occasionally check if you are getting values or not.
 (
 
 w = Window("MIMIC", Rect(100,100, 285, 400)).front.alwaysOnTop_(true);
 w.view.decorator = FlowLayout( w.view.bounds, 5@5, 15@5 );
-(~sliders = {Slider(w)} !8);
+(~sliders = {Slider(w)}!8);
 StaticText(w,275@20).string_("Blink    Delta   Theta   Alpha   BetaL   Beta   BetaH   Gam");
 PdefAllGui(16, w);
-
-
 
 ~windowfunc = {
 	~sliders[0].value = ~valdict.blink;
@@ -76,11 +71,11 @@ PdefAllGui(16, w);
 	~sliders[4].value = ~valdict.betaLo;
 	~sliders[5].value = ~valdict.beta;
 	~sliders[6].value = ~valdict.betaHi;
-	~sliders[0].value = ~valdict.gamma;
+	~sliders[7].value = ~valdict.gamma;
 };
 )
 
-
+// 3 - OSC
 (
 ~valdict = ();
 OSCdef(\brainIn1, {|msg|
@@ -95,6 +90,7 @@ OSCdef(\brainIn1, {|msg|
 	};
 }, '/el3').permanent_(true); //make sure you assign the correct electrode.
 )
+
 
 // Boiler code on using the brainwave values.
 
@@ -171,4 +167,7 @@ Pdef(\drone2, Pbind(\instrument, \UCAsaw,
 );
 )
 
+
+// cleanup
+~chatter.free; ~win.close;
 
