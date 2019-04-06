@@ -1,100 +1,51 @@
 //Code for client of MIMIC.
 
-//boiler values of electrode1 ONLY for practise!
-/*
-(
-~valdict = (
-	blink: 1.0.rand,
-	delta: 1.0.rand,
-	theta: 1.0.rand,
-	alpha: 1.0.rand,
-	betaLo: 1.0.rand,
-	beta: 1.0.rand,
-	betaHi: 1.0.rand,
-	gamma: 1.0.rand
-);
-
-NetAddr.localAddr.sendMsg('/el0', *~valdict);
+//pseudo osc input message.
+/*(
+~msg = 4.do{Array.fill(8, {rrand(0.0, 1.0).postln})};
+NetAddr.localAddr.sendMsg('/band', "el", ~msg);
 )
 */
 
-//Utopia
+~events = ~objSpace[\event];
+
 (
-~win = Window("AdHocSociety").front;
-~win.layout = VLayout.new.add(~listView = ListView.new);
+~events.do{|events|
+	~elgui = EnvirGui(events);
+	~egui.parent.name = "electrodes";
 
-~addrBook = AddrBook.new;
-// to get updates, just add a dependant
-~addrBook.addDependant({|addrBook, what, who|
-	{~listView.items = addrBook.peers.collectAs({|peer|
-		peer.name ++ " | " ++ peer.addr.ip ++ " | " ++ if(peer.online, "online", "offline");
-	}, Array)}.defer;
-});
-~addrBook.addMe;// will automatically add you using your user name
-//~addrBook.addMe(\YourNAMEhere);  // or specify your name
-~hail = Hail(~addrBook);
-
-// Chat
-~chatter = Chatter(~addrBook);
-
-~win.layout.add(VLayout(StaticText().string_("Chatter"), ~textField = TextField(), ~textView = TextView()));
-~textField.action_({|v| ~chatter.send(v.string); v.string = "" });
-// to get updates, just add a dependant
-~chatter.addDependant({|chatter, what, who, chat|
-	chat = chat.asString;
-	{ ~textView.string_(who ++ ": " ++ chat ++ "\n" ++ ~textView.string) }.defer;
-	// Shout
-	if (chat.beginsWith(NMLShout.tag)) {
-		defer {
-			NMLShout((chat.drop(NMLShout.tag.size).reject(_ == $\n) + ("/" ++ who)));
-			{~win.front;}.defer(0.1);
-		}
+	events.do.keys{|key| events.addSpec(key, [0.0, 1.0]) };
 	};
-});
-s.reboot;
 )
 
-// cleanup
-~chatter.free; ~win.close;
+~objSpace = OSCObjectSpace(~addrBook, true);
 
-//GUI occasionally check if you are getting values or not.
+Tdef(\changeEvent, { loop{ 0.085.wait;
+	~event = ~objSpace[\event];
+	~el1 = ~event[\el0].asEvent.asStream.values;
+	~el2 = ~event[\el1].asEvent.asStream.values;
+	~el3 = ~event[\el2].asEvent.asStream.values;
+	~el3 = ~event[\el3].asEvent.asStream.values;
+} }).play;
+
+
+
 (
+~elgui = EnvirGui(~events[\el]);
+~egui.parent.name = "electrode";
 
-w = Window("MIMIC", Rect(100,100, 285, 400)).front.alwaysOnTop_(true);
-w.view.decorator = FlowLayout( w.view.bounds, 5@5, 15@5 );
-(~sliders = {Slider(w)} !8);
-StaticText(w,275@20).string_("Blink    Delta   Theta   Alpha   BetaL   Beta   BetaH   Gam");
-PdefAllGui(16, w);
-
-
-
-~windowfunc = {
-	~sliders[0].value = ~valdict.blink;
-	~sliders[1].value = ~valdict.delta;
-	~sliders[2].value = ~valdict.theta;
-	~sliders[3].value = ~valdict.alpha;
-	~sliders[4].value = ~valdict.betaLo;
-	~sliders[5].value = ~valdict.beta;
-	~sliders[6].value = ~valdict.betaHi;
-	~sliders[0].value = ~valdict.gamma;
+// with JITLibExtensions, you can add specs to the valdict:
+~valdict.addSpec(\blink, [0, 1], );
+// are they all unipolar?
+~valdict.keys.do { |key|
+        ~valdict.addSpec(key, [0.0, 1.0]);
 };
 )
-
-
-(
-~valdict = ();
-OSCdef(\brainIn1, {|msg|
-	if(~valdict.notNil){
-		if(~windowfunc.notNil){
-	(1, 3 .. msg.size).do { |i|
-		~valdict.put(msg[i], msg[i+1])
- 	};
-	//~valdict.postln
-	{~windowfunc.value}.defer;
-		}
-	};
-}, '/el3').permanent_(true); //make sure you assign the correct electrode.
 )
+
+Pdef(\x, Pbind(\instrument, \sine, \amp, 0.1, \dur, Pfunc{~val.linlin(0, 1, 0.5, 1)}, \degree, Prand(~el3*9, inf))).play;
+Pdef(\y, Pbind(\instrument, \UCAsaw, \dur, Pfunc{~val.linlin(0, 1, 0.5, 2.0) }, \degree, Prand(~el2*4, inf))).play;
+Pdef(\z, Pbind(\instrument, \pingy, \dur, Pfunc{~val.linlin(0, 1, 0.5, 2.0) }, \degree, Prand(~el3*8, inf))).trace.play;
 
 // Boiler code on using the brainwave values.
 
@@ -105,7 +56,7 @@ SynthDef(\sine, {arg freq = 120, mod = 0.1, release = 0.25, amp = 0.1, atk = 0.0
 	ReplaceOut.ar(0, sig * amp);
 }).add;
 
-SynthDef(\UCAsaw, {
+SynthDef(\saw, {
 	|atk=2 , sus = 0, rel = 3, freq=222,
 	centerFreq=1500, filterQ=0.2,
 	out=0,amp=0.4, pan = 0 |
@@ -137,6 +88,26 @@ Pdef(\x, Pbind(\instrument, \sine,
 );
 )
 
+(
+var win, text;
+win = Window.new("bots", 300@600);
+text = TextView(win, win.view.bounds);
+~textfunc = {
+		text.string = ~event.asString
+};
+text.syntaxColorize;
+win.front;
+text.mouseUpAction_{|key, val|
+	var ndef = Ndef("node: " ++ val.asString, {
+		SinOsc.ar(\freq.kr(100, 0.3));
+	});
+	ndef[1] = \set -> Pbind(\dur, ~event.asEvent.delta, \freq, Pfunc{~event.asEvent.gamma + val});
+	ndef[1..8] = \filter -> {arg in; GVerb.ar(in, mul:0.1)};
+	ndef.play(0,2)
+};
+
+NdefMixer(s);
+)
 
 //try lowering the range of linlin and linexp.
 //More importantly for dronning sounds (where brain wave is calmer).
@@ -170,5 +141,3 @@ Pdef(\drone2, Pbind(\instrument, \UCAsaw,
 ).trace
 );
 )
-
-
