@@ -2,52 +2,10 @@
 // Total of 8 types of data is coming from the master. 7 types of neural oscillations (delta, theta, alpha, betaHigh, beta, betaLow and gamma) for each 4 channel and a BLINK situation which shows if user blinks.
 // Neural powers are constrained to 25 microVoltsSquare per Hz and scaled to min 0 max 1.
 
-// o = Server.local.options;
-// o.device = "ASIO : ASIO4ALL v2";
-// s.boot;
-
-//Utopia
-(
-~win = Window("AdHocSociety").front;
-~win.layout = VLayout.new.add(~listView = ListView.new);
-
-~addrBook = AddrBook.new;
-// to get updates, just add a dependant
-~addrBook.addDependant({|addrBook, what, who|
-	{~listView.items = addrBook.peers.collectAs({|peer|
-		peer.name ++ " | " ++ peer.addr.ip ++ " | " ++ if(peer.online, "online", "offline");
-	}, Array)}.defer;
-});
-~addrBook.addMe;// will automatically add you using your user name
-//~addrBook.addMe(\YourNAMEhere);  // or specify your name
-~hail = Hail(~addrBook);
-
-// Chat
-~chatter = Chatter(~addrBook);
-
-~win.layout.add(VLayout(StaticText().string_("Chatter"), ~textField = TextField(), ~textView = TextView()));
-~textField.action_({|v| ~chatter.send(v.string); v.string = "" });
-// to get updates, just add a dependant
-~chatter.addDependant({|chatter, what, who, chat|
-	chat = chat.asString;
-	{ ~textView.string_(who ++ ": " ++ chat ++ "\n" ++ ~textView.string) }.defer;
-	// Shout
-	if (chat.beginsWith(NMLShout.tag)) {
-		defer {
-			NMLShout((chat.drop(NMLShout.tag.size).reject(_ == $\n) + ("/" ++ who)));
-			{~win.front;}.defer(0.1);
-		}
-	};
-});
-
-s.reboot;
-
-~objSpace = OSCObjectSpace(~addrBook, true);
-)
-
 //OSC Communication
 (
 ~eegBook = (); //dictionary for spectral power of eeg data
+~objSpace = OSCObjectSpace(~addrBook, true);
 
 OSCdef(\eegPower, {
 	arg msg;
@@ -56,8 +14,6 @@ OSCdef(\eegPower, {
 	~objSpace.put(\event, ~eegBook);
 }, '/band').permanent_(true);
 )
-
-
 
 // TEST with Synthdef
 (
