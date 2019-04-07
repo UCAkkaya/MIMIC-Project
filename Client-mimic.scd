@@ -126,6 +126,21 @@ SynthDef(\UCAsaw, {
 	Out.ar(out, sig);
 }).add;
 
+SynthDef(\UCAconvolution, {
+	|atk=2 , sus = 0, rel = 3, freq=222,
+	centerFreq=1500, filterQ=0.2,
+	out=0,amp=0.4, pan = 0, kernel|
+	var sig, env;
+	env = EnvGen.kr(Env([0,1,1,0,], [atk,sus,rel], [1,0,-1]), doneAction:2);
+	sig = Saw.ar(freq);
+	sig = BPF.ar(sig,centerFreq,filterQ);
+	sig = Pan2.ar(sig, pan);
+	sig = sig * env * amp;
+	sig = Convolution.ar(sig, Impulse.ar(kernel));
+	Out.ar(out, sig);
+}).add;
+
+
 SynthDef(\chord,
     { |out=0, freq=440, amp=0.1, pan=0 atk=2 rel=4 lowPassFreq= 400, rq=0.71 revMix = 1|
         var env, sig;
@@ -175,15 +190,27 @@ Pdef(\drone, Pbind(\instrument, \chord,
 ).trace);
 )
 //try lowering the range of linlin and linexp.
+//if you are using expexp or explin rather than linexp or linlin you do higher ranges
 //More importantly for dronning sounds (where brain wave is calmer).
 (
 Pdef(\sinus, Pbind(\instrument, \UCAsaw,
 	\atk, 5,
 	\release, 4,
-	\dur, Pfunc{ ~el1.betaHi.linexp(0.010, 0.25, 1, 2) + rrand(0.7, 0.9)},
-	\freq, Pfunc{ ~el0.beta.linexp(0.010, 0.5, 2000, 4910) + rrand(10, 100) },
+	\dur, Pfunc{ ~el1.betaHi.expexp(0.010, 0.8, 1, 2) + rrand(0.7, 0.9)},
+	\freq, Pfunc{ ~el0.beta.expexp(0.010, 1, 2000, 4910) + rrand(10, 100) },
 	\filterQ, Pfunc{~el2.gamma},
 	\amp, Pfunc{ ~el0.gamma.max(0.7)}).trace);
+)
+
+(
+Pdef(\convol, Pbind(\instrument, \UCAconvolution,
+	\kernel, Pfunc{~el0.beta.linlin(0.010, 0.30, 20, 500)},
+	\atk, 0.1,
+	\release, 2,
+	\dur, Pfunc{ ~el1.betaHi.expexp(0.010, 0.8, 1, 2) + rrand(0.7, 0.9)},
+	\freq, Pfunc{ ~el0.beta.expexp(0.010, 1, 80, 4910) + rrand(10, 100) },
+	\filterQ, Pfunc{~el2.gamma},
+	\amp, Pfunc{ ~el0.gamma.max(0.5)}).trace);
 )
 // You can use comparison of these values.
 // For example BetaHi(or mean of three beta values)/Alpha shows the focus of the subject.
@@ -203,8 +230,8 @@ Pdef(\xxv1, Pbind(\instrument, \UCArhodes,
 	\rel, 2,
 	\scale, #[0, 3, 6, 8, 11, 14, 17],
 	\degree, Pseq(~el0.asStream.values.linlin(0.010, 0.20, rrand(-12, 0), 7).asInt, inf),
-	\dur, Pfunc {~el1.theta.linlin(0.010, 0.7, 0.5, 1)},
-	\pan, Pfunc {~el1.gamma.linlin(0.010, 0.035, -0.20, 0.20)},
+	\dur, Pfunc {~el1.theta.explin(0.010, 0.7, 0.5, 1)},
+	\pan, Pfunc {~el1.gamma.explin(0.0, 0.6, -0.20, 0.20)},
 ).trace);
 
 Pdef(\xxv2, Pbind(\instrument, \UCArhodes,
