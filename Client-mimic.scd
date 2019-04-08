@@ -7,13 +7,10 @@ NetAddr.localAddr.sendMsg('/band', "el", ~msg);
 )
 */
 
-// 1- Communication with Master.
+// 1111111
 (
 ~objSpace = OSCObjectSpace(~addrBook, true);
 
-
-//GUI
-//
 ~windowfunct = {
 ~event[\el0].asEvent.values.do{
 	arg changer, i;
@@ -33,10 +30,11 @@ NetAddr.localAddr.sendMsg('/band', "el", ~msg);
 };
 };
 )
+// 2222222
+
 (
 w = Window("mimician", Rect(100,100,630,430)).front
 .alwaysOnTop_(true);
-
 w.view.decorator_(FlowLayout(w.bounds, 5@5, 7@7));
 
 c = Array.fill(4, {
@@ -44,13 +42,13 @@ c = Array.fill(4, {
 	view = CompositeView(w, 205@205).background_(Color.rand);
 	view.decorator_(FlowLayout(view.bounds, 5@5, 5@5));
 });
-4.do{|i| Array.fill(8, {Slider(c[i], 150@20)}); };
 
-~elgui = EnvirGui(~event, parent: w);
+4.do{|i| Array.fill(8, {Slider(c[i], 150@20)}); };
 
 PdefAllGui(20, nil, bounds:Rect(0,0,200, 330));
 )
 
+// 33333333
 (
 Tdef(\eegCounter, {
 	loop{
@@ -65,6 +63,7 @@ Tdef(\eegCounter, {
 	0.10.wait;
 } }).play;
 CmdPeriod.add({ "You have deactivated Tdef, rerun now".warn;});
+~elgui = EnvirGui(~event, parent: w);
 )
 
 
@@ -110,10 +109,9 @@ SynthDef(\UCAconvolution, {
 	sig = BPF.ar(sig,centerFreq,filterQ);
 	sig = Pan2.ar(sig, pan);
 	sig = sig * env * amp;
-	sig = Convolution.ar(sig, Impulse.ar(kernel));
+	sig = Convolution.ar(sig, SinOsc.ar(kernel));
 	Out.ar(out, sig);
 }).add;
-
 
 SynthDef(\chord,
     { |out=0, freq=440, amp=0.1, pan=0 atk=2 rel=4 lowPassFreq= 400, rq=0.71 revMix = 1|
@@ -182,12 +180,14 @@ Pdef(\convol, Pbind(\instrument, \UCAconvolution,
 	\atk, 0.1,
 	\release, 2,
 	\dur, Pfunc{ ~el1.betaHi.expexp(0.010, 0.8, 1, 2) + rrand(0.7, 0.9)},
-	\freq, Pfunc{ ~el0.beta.expexp(0.010, 1, 80, 4910) + rrand(10, 100) },
+	\freq, Pfunc{ ~el0.beta.expexp(0.010, 1, 80, 1000) + rrand(10, 100) },
 	\filterQ, Pfunc{~el2.gamma},
 	\amp, Pfunc{ ~el0.gamma.max(0.5)}).trace);
 )
+
 // You can use comparison of these values.
 // For example BetaHi(or mean of three beta values)/Alpha shows the focus of the subject.
+
 (
 Pdef(\drop, Pbind(\instrument, \sine,
 	\dur, Pfunc{ ~el1.betaHi/~el1.alpha}+2,
@@ -197,6 +197,7 @@ Pdef(\drop, Pbind(\instrument, \sine,
 	\amp, Pfunc{ ~el0.gamma.max(0.5) + 0.1}).trace);
 )
 // One example for using all values of one electrode. Check the \freq line.
+
 (
 Pdef(\xxv1, Pbind(\instrument, \UCArhodes,
     \amp, 0.50,
