@@ -13,12 +13,12 @@ NetAddr.localAddr.sendMsg('/band', "el", ~msg);
 ~objSpace = OSCObjectSpace(~addrBook, true);
 
 //
-~elgui = EnvirGui(~event);
+~elgui = EnvirGui(~event, parent: w);
 ~elgui.parent.name = "electrodes";
 
 PdefAllGui(20, nil, bounds:Rect(0,0,200, 330));
 
-)
+
 //
 ~event.do{|events|
 	~elgui = EnvirGui(events);
@@ -28,7 +28,7 @@ PdefAllGui(20, nil, bounds:Rect(0,0,200, 330));
 	};
 
 // longer way to show sliders
-/*
+
 w = Window("mimician", Rect(100,100,630,430)).front
 .alwaysOnTop_(true);
 
@@ -61,8 +61,8 @@ c = Array.fill(4, {
 };
 }.defer;
 	~windowfunct.value;
-PdefAllGui(20, nil, bounds:Rect(0,0,200, 330));
-*/
+
+
 )
 
 // 2- Communication with Master.
@@ -76,7 +76,7 @@ Tdef(\eegCounter, {
 	~el1 = ~event[\el1].asEvent;
 	~el2 = ~event[\el2].asEvent;
 	~el3 = ~event[\el3].asEvent;
-	//{~windowfunct.value}.defer;
+	{~windowfunct.value}.defer;
 	0.10.wait;
 } }).play;
 
@@ -184,7 +184,7 @@ Pdef(\drone, Pbind(\instrument, \chord,
 	\freq, Pfunc{ ~el1.alpha.linlin(0, 0.5, 200, 800)},
 	\lowPassFreq, Pfunc{ ~el0.beta + rrand(0.1, 10.0) },
 	\pan, Pfunc{ ~el0.alpha}.linlin(0.0, 0.20, -1, 1),
-	\amp, Pfunc{ ~el1.gamma.max(0.5) / 2},
+	\amp, Pfunc{ ~el1.gamma.max(0.9) / 2},
 	\revMix, Pfunc{~el3.gamma.linlin(0.0, 1, 0.5, 1)}, //one cool trick for when I move my head to give a near 1 value
 	\revRoom, Pfunc{~el2.gamma.linlin(0.0, 1, 0.5, 100)} //one cool trick for when I move my head to give a near 1 value
 ).trace);
