@@ -7,41 +7,13 @@ NetAddr.localAddr.sendMsg('/band', "el", ~msg);
 )
 */
 
-
-// 1 - GUI
+// 1- Communication with Master.
 (
 ~objSpace = OSCObjectSpace(~addrBook, true);
 
+
+//GUI
 //
-~elgui = EnvirGui(~event, parent: w);
-~elgui.parent.name = "electrodes";
-
-PdefAllGui(20, nil, bounds:Rect(0,0,200, 330));
-
-
-//
-~event.do{|events|
-	~elgui = EnvirGui(events);
-	~elgui.parent.name = "electrodes";
-
-	events.do.keys{|key| events.addSpec(key, [0.0, 1.0]) };
-	};
-
-// longer way to show sliders
-
-w = Window("mimician", Rect(100,100,630,430)).front
-.alwaysOnTop_(true);
-
-w.view.decorator_(FlowLayout(w.bounds, 5@5, 7@7));
-
-c = Array.fill(4, {
-	|view|
-	view = CompositeView(w, 205@205).background_(Color.rand);
-	view.decorator_(FlowLayout(view.bounds, 5@5, 5@5));
-});
-
-4.do{|i| Array.fill(8, {Slider(c[i], 150@20)}); };
-
 ~windowfunct = {
 ~event[\el0].asEvent.values.do{
 	arg changer, i;
@@ -59,16 +31,27 @@ c = Array.fill(4, {
 	arg changer, i;
 	c[3].children[i].value_(changer)
 };
-}.defer;
-	~windowfunct.value;
+};
+)
+(
+w = Window("mimician", Rect(100,100,630,430)).front
+.alwaysOnTop_(true);
 
+w.view.decorator_(FlowLayout(w.bounds, 5@5, 7@7));
 
+c = Array.fill(4, {
+	|view|
+	view = CompositeView(w, 205@205).background_(Color.rand);
+	view.decorator_(FlowLayout(view.bounds, 5@5, 5@5));
+});
+4.do{|i| Array.fill(8, {Slider(c[i], 150@20)}); };
+
+~elgui = EnvirGui(~event, parent: w);
+
+PdefAllGui(20, nil, bounds:Rect(0,0,200, 330));
 )
 
-// 2- Communication with Master.
 (
-~objSpace = OSCObjectSpace(~addrBook, true);
-
 Tdef(\eegCounter, {
 	loop{
 	~event = ~objSpace[\event];
@@ -76,23 +59,14 @@ Tdef(\eegCounter, {
 	~el1 = ~event[\el1].asEvent;
 	~el2 = ~event[\el2].asEvent;
 	~el3 = ~event[\el3].asEvent;
-	{~windowfunct.value}.defer;
+		if (~windowfunct.notNil) {
+			{~windowfunct.value}.defer
+		};
 	0.10.wait;
 } }).play;
-
 CmdPeriod.add({ "You have deactivated Tdef, rerun now".warn;});
-
-// Maybe use of SkipJack will help cmd period issue ?
-
-/*w = SkipJack({
-	~el0 = ~event[\el0].asEvent;
-	~el1 = ~event[\el1].asEvent;
-	~el2 = ~event[\el2].asEvent;
-	~el3 = ~event[\el3].asEvent; }, 0.10, name: "eegCounter");
-)*/
-
-
 )
+
 
 
 //////////////////////////////////////////////////////////////////////////////////
