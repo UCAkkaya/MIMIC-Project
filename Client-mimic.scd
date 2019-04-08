@@ -1,13 +1,34 @@
 //Code for MIMIC client.
 
-//pseudo osc input message.
-/*(
-~msg = 4.do{Array.fill(8, {rrand(0.0, 1.0).postln})};
-NetAddr.localAddr.sendMsg('/band', "el", ~msg);
+//pseudo input message
+//Please run after the GUI down there or you'll get errors until you run it.
+//Don't run the 22222 if you are workin solo
+
+/*
+(
+~pseudoBook = ();
+~objSpace = OSCObjectSpace(~addrBook, true);
+~randomer = {[\el0, \el1, \el2, \el3].do{ |msg|
+	var variable;
+	variable = Array.fill(8, {rrand(0.0, 1.0)};);
+	~pseudoBook[msg] = ([blink: variable[0], delta:variable[1], theta:variable[2], alpha:variable[3],
+				betaLo:variable[4], beta:variable[5], betaHi:variable[6], gamma:variable[7]]);
+}};
+
+x = Tdef (\randomer, {
+	loop {
+		{~randomer.value}.defer;
+		~objSpace.put(\event, ~pseudoBook);
+		~event = ~objSpace[\event];
+		{~windowfunct.value}.defer;
+		0.25.wait;
+	}}).play;
+
+CmdPeriod.add({ "You have deactivated Tdef, rerun now".warn;});
 )
 */
 
-// 1111111
+// 111111111 GUI
 (
 ~objSpace = OSCObjectSpace(~addrBook, true);
 
@@ -29,26 +50,32 @@ NetAddr.localAddr.sendMsg('/band', "el", ~msg);
 	c[3].children[i].value_(changer)
 };
 };
-)
-// 2222222
 
-(
-w = Window("mimician", Rect(100,100,630,430)).front
+w = Window("mimician", Rect(100,100,360,600)).front
 .alwaysOnTop_(true);
-w.view.decorator_(FlowLayout(w.bounds, 5@5, 7@7));
 
+w.view.decorator = d = FlowLayout(w.bounds, 5@5, 7@7);
 c = Array.fill(4, {
 	|view|
-	view = CompositeView(w, 205@205).background_(Color.rand);
+	view = CompositeView(w, 150@150).background_(Color.rand);
 	view.decorator_(FlowLayout(view.bounds, 5@5, 5@5));
 });
 
-4.do{|i| Array.fill(8, {Slider(c[i], 150@20)}); };
+PdefAllGui(16, w, bounds:Rect(0,0,320, 330));
+4.do{|i| Array.fill(8, {Slider(c[i], 140@20)}); };
 
-PdefAllGui(20, nil, bounds:Rect(0,0,200, 330));
+d.reset;
+d.left_(320);
+s = StaticText(w, Rect(0, 0, 35, 150));
+s.string = "Blink
+Delta   Theta      Alpha     BetLo     Beta     BetHi     Gamma";
+s.align_(\);
+
+~elgui = EnvirGui(~event, 4, bounds: 1250@50);
+
 )
 
-// 33333333
+// 222222 Communication with Master
 (
 Tdef(\eegCounter, {
 	loop{
@@ -63,7 +90,9 @@ Tdef(\eegCounter, {
 	0.10.wait;
 } }).play;
 CmdPeriod.add({ "You have deactivated Tdef, rerun now".warn;});
-~elgui = EnvirGui(~event, parent: w);
+
+~elgui = EnvirGui(~event, 4, bounds: 1250@50);
+
 )
 
 
