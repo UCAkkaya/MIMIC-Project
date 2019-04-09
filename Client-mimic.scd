@@ -2,7 +2,6 @@
 
 //pseudo input message
 //Please run after the GUI down there or you'll get errors until you run it.
-//Don't run the 22222 if you are workin solo
 
 /*
 (
@@ -10,7 +9,7 @@
 ~objSpace = OSCObjectSpace(~addrBook, true);
 ~randomer = {[\el0, \el1, \el2, \el3].do{ |msg|
 	var variable;
-	variable = Array.fill(8, {rrand(0.0, 1.0)};);
+	variable = Array.fill(8, {rrand(0.0, rrand(0.35,rrand (0.55,0.95)))};);
 	~pseudoBook[msg] = ([blink: variable[0], delta:variable[1], theta:variable[2], alpha:variable[3],
 				betaLo:variable[4], beta:variable[5], betaHi:variable[6], gamma:variable[7]]);
 }};
@@ -185,7 +184,7 @@ Pdef(\drone, Pbind(\instrument, \chord,
 	\freq, Pfunc{ ~el1.alpha.linlin(0, 0.5, 200, 800)},
 	\lowPassFreq, Pfunc{ ~el0.beta + rrand(0.1, 10.0) },
 	\pan, Pfunc{ ~el0.alpha}.linlin(0.0, 0.20, -1, 1),
-	\amp, Pfunc{ ~el1.gamma.max(0.9) / 2},
+	\amp, 0.45,
 	\revMix, Pfunc{~el3.gamma.linlin(0.0, 1, 0.5, 1)}, //one cool trick for when I move my head to give a near 1 value
 	\revRoom, Pfunc{~el2.gamma.linlin(0.0, 1, 0.5, 100)} //one cool trick for when I move my head to give a near 1 value
 ).trace);
@@ -200,7 +199,7 @@ Pdef(\sinus, Pbind(\instrument, \UCAsaw,
 	\dur, Pfunc{ ~el1.betaHi.expexp(0.010, 0.8, 1, 2) + rrand(0.7, 0.9)},
 	\freq, Pfunc{ ~el0.beta.expexp(0.010, 1, 2000, 4910) + rrand(10, 100) },
 	\filterQ, Pfunc{~el2.gamma},
-	\amp, Pfunc{ ~el0.gamma.max(0.7)}).trace);
+	\amp, 0.6).trace);
 )
 
 (
@@ -211,9 +210,9 @@ Pdef(\convol, Pbind(\instrument, \UCAconvolution,
 	\dur, Pfunc{ ~el1.betaHi.expexp(0.010, 0.8, 1, 2) + rrand(0.7, 0.9)},
 	\freq, Pfunc{ ~el0.beta.expexp(0.010, 1, 80, 1000) + rrand(10, 100) },
 	\filterQ, Pfunc{~el2.gamma},
-	\amp, Pfunc{ ~el0.gamma.max(0.5)}).trace);
+	\amp, 0.10);
 )
-
+)
 // You can use comparison of these values.
 // For example BetaHi(or mean of three beta values)/Alpha shows the focus of the subject.
 
@@ -223,7 +222,7 @@ Pdef(\drop, Pbind(\instrument, \sine,
 	\freq, Pfunc{ (~el2.delta/~el2.gamma) * 40 + rrand(30, 100) },
 	\atk, Pfunc{ ~el2.beta/~el3.gamma},
 	\release, Pfunc{ ~el0.alpha * ~el0.delta}*2,
-	\amp, Pfunc{ ~el0.gamma.max(0.5) + 0.1}).trace);
+	\amp, 0.6).trace);
 )
 // One example for using all values of one electrode. Check the \freq line.
 
