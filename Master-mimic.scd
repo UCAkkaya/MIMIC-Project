@@ -15,6 +15,24 @@ OSCdef(\eegPower, {
 }, '/band').permanent_(true);
 )
 
+//Averaging
+
+(~bufferLength = 1;
+~signalAverager = Buffer.alloc(s, 200 * ~bufferLength, 1);
+
+x = SynthDef(\bufRecorder,{
+	|out=0, recLev = 1, preLev = 0, signal = 0 |
+	var sig, env;
+	signal = ~el1.alpha ;
+	sig =  signal;
+	RecordBuf.ar(sig, ~signalAverager.bufnum,
+		recLevel: recLev,
+		preLevel: preLev);
+}).play;
+
+)
+
+
 // TEST with Synthdef
 (
 SynthDef(\UCAsaw, {

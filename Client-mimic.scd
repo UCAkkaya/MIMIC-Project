@@ -50,27 +50,41 @@ CmdPeriod.add({ "You have deactivated Tdef, rerun now".warn;});
 };
 };
 
-w = Window("mimician", Rect(100,100,360,600)).front
+w = Window("mimician", Rect(100,100,420,600)).front
 .alwaysOnTop_(true);
 
 w.view.decorator = d = FlowLayout(w.bounds, 5@5, 7@7);
 c = Array.fill(4, {
 	|view|
-	view = CompositeView(w, 150@150).background_(Color.rand);
+	view = CompositeView(w, 200@200).background_(Color.rand);
 	view.decorator_(FlowLayout(view.bounds, 5@5, 5@5));
 });
 
 PdefAllGui(16, w, bounds:Rect(0,0,320, 330));
-4.do{|i| Array.fill(8, {Slider(c[i], 140@20)}); };
+4.do{|i| Array.fill(8, { NumberBox(c[i], 140@20).increment(factor: 0.001)})};
+//4.do{|i| Array.fill(8, {NumberBox(c[i], 30@15)})};
 
 d.reset;
-d.left_(320);
-s = StaticText(w, Rect(0, 0, 35, 150));
+d.left_(270);
+s = StaticText(w, Rect(0, 0, 35, 205));
 s.string = "Blink
-Delta   Theta      Alpha     BetLo     Beta     BetHi     Gamma";
+
+Delta
+
+Theta
+
+Alpha
+
+BetLo
+
+Beta
+
+BetHi
+
+Gamma";
 s.align_(\);
 
-~elgui = EnvirGui(~event, 4, bounds: 1250@50);
+//~elgui = EnvirGui(~event, 4, bounds: 1250@50);
 
 )
 
@@ -90,7 +104,7 @@ Tdef(\eegCounter, {
 } }).play;
 CmdPeriod.add({ "You have deactivated Tdef, rerun now".warn;});
 
-~elgui = EnvirGui(~event, 4, bounds: 1250@50);
+//~elgui = EnvirGui(~event, 4, bounds: 1250@50);
 
 )
 
