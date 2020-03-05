@@ -44,3 +44,16 @@ Pbind(
 
 // accessing all the electrode values
 ~eegBook.keysValuesDo{|key, value| postf("-" ++ [key, value].postln)};
+
+//a better scaling function for generic specification of ranges.
+~specs = (
+	el1: ControlSpec(1, 10, step: 0.01),
+	el2: ControlSpec(1, 20, step: 0.01);
+);
+
+x = {|i, val|
+	~specs[i].map(val) //first is the el num, second is the value to be scaled up/down.
+	/ 1024; //or whatever the maximum value of el is.
+};
+
+x.value("el2".asSymbol, 0.1);
